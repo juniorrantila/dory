@@ -100,8 +100,7 @@ struct StringBuffer {
 
     constexpr ErrorOr<u32> write(StringView string)
     {
-        if (m_size + string.size >= m_capacity)
-            return Error::from_string_literal("buffer filled");
+        TRY(expand_if_needed_for_write(string.size));
         auto size = string.unchecked_copy_to(&m_data[m_size]);
         m_size += size;
         return size;
@@ -150,6 +149,25 @@ struct StringBuffer {
         c_string ptr = data();
         invalidate();
         return ptr;
+    }
+
+    ErrorOr<void> expand_if_needed_for_write(u32 size)
+    {
+        if (m_size + size >= m_capacity)
+            TRY(expand_by(size));
+        return {};
+    }
+
+    ErrorOr<void> expand_by(u32 size)
+    {
+        auto new_capacity = m_size + size;
+        auto* new_data = (char*)TRY(allocate_memory(new_capacity));
+        __builtin_memcpy(new_data, data(), m_size);
+        if (is_saturated())
+            free_memory(m_data);
+        m_data = new_data;
+        m_capacity = new_capacity;
+        return {};
     }
 
 private:
