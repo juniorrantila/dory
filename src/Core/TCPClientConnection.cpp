@@ -49,7 +49,7 @@ ErrorOr<u32> TCPClientConnection::write(StringView message)
 ErrorOr<void> TCPClientConnection::flush_write()
 {
     auto bytes_written = ::write(socket, write_buffer.data(), write_buffer.size());
-    if (bytes_written < write_buffer.size()) {
+    if (bytes_written < 0) {
         return Error::from_errno();
     }
     write_buffer.clear();
