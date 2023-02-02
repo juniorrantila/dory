@@ -1,5 +1,7 @@
 #include "TCPListener.h"
+#include "System.h"
 #include "TCPClientConnection.h"
+#include "Print.h"
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -32,7 +34,15 @@ ErrorOr<TCPListener> TCPListener::create(u16 port,
     return TCPListener(socket, port);
 }
 
-void TCPListener::destroy() const { close(m_socket); }
+void TCPListener::destroy() const
+{
+    if (shutdown(m_socket, SHUT_RDWR) < 0) {
+        dbgln("Error: "sv, Error::from_errno());
+    }
+    if (close(m_socket) < 0) {
+        dbgln("Error: "sv, Error::from_errno());
+    }
+}
 
 ErrorOr<TCPClientConnection> TCPListener::accept() const
 {
