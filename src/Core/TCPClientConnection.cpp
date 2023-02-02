@@ -6,10 +6,7 @@ namespace Core {
 
 ErrorOr<TCPClientConnection> TCPClientConnection::create(int socket)
 {
-    return TCPClientConnection {
-        socket,
-        TRY(StringBuffer::create_saturated(16 * 1024 * 1024)),
-    };
+    return TCPClientConnection(socket);
 }
 
 void TCPClientConnection::destroy() const
@@ -18,25 +15,24 @@ void TCPClientConnection::destroy() const
     ::close(socket);
 }
 
-ErrorOr<StringView> TCPClientConnection::read()
+ErrorOr<StringBuffer> TCPClientConnection::read()
 {
-    read_buffer.clear();
-
-    char buffer[4096];
-    isize buffer_size = sizeof(buffer);
+    auto result = TRY(StringBuffer::create());
 
     isize bytes_read = -1;
     while (true) {
+        static char buffer[16 * 1024 * 1024];
+        isize buffer_size = sizeof(buffer);
         bytes_read = ::read(socket, buffer, buffer_size);
         buffer[bytes_read] = '\0';
         if (bytes_read < 0)
             return Error::from_errno();
-        TRY(read_buffer.write(StringView::from_c_string(buffer)));
+        TRY(result.write(StringView::from_c_string(buffer)));
         if (bytes_read == 0 || bytes_read < buffer_size)
             break;
     }
 
-    return read_buffer.view();
+    return result;
 }
 
 ErrorOr<u32> TCPClientConnection::write(StringView message)

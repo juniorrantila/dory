@@ -6,12 +6,10 @@ namespace Core {
 
 struct TCPClientConnection {
     int socket;
-    StringBuffer read_buffer;
     StringBuffer write_buffer;
 
     constexpr TCPClientConnection(TCPClientConnection&& other)
         : socket(other.socket)
-        , read_buffer(move(other.read_buffer))
     {
         other.invalidate();
     }
@@ -26,7 +24,7 @@ struct TCPClientConnection {
     void destroy() const;
 
     static ErrorOr<TCPClientConnection> create(int socket);
-    ErrorOr<StringView> read();
+    ErrorOr<StringBuffer> read();
     ErrorOr<void> flush_write();
     ErrorOr<u32> write(StringView message);
 
@@ -68,10 +66,8 @@ struct TCPClientConnection {
     void invalidate() { socket = -1; }
 
 private:
-    constexpr TCPClientConnection(int socket,
-        StringBuffer&& read_buffer)
+    constexpr TCPClientConnection(int socket)
         : socket(socket)
-        , read_buffer(move(read_buffer))
     {
     }
 };
