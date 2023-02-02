@@ -269,6 +269,11 @@ ErrorOr<bool> has_program(StringView name)
     return false;
 }
 
+void sleep(u32 seconds)
+{
+    ::sleep(seconds);
+}
+
 [[noreturn]] void exit(int code)
 {
     ::exit(code);

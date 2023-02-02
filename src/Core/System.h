@@ -270,6 +270,8 @@ Optional<c_string> getenv(StringView name);
 
 ErrorOr<bool> has_program(StringView name);
 
+void sleep(u32 seconds);
+
 [[noreturn]] void exit(int code);
 
 }
