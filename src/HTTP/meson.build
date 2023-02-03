@@ -1,4 +1,4 @@
-html_lib = library('html', [
+http_lib = library('http', [
     'Headers.cpp',
     ],
     dependencies: [
@@ -6,7 +6,7 @@ html_lib = library('html', [
       ty_dep,
     ])
 
-html_dep = declare_dependency(
-  link_with: html_lib,
+http_dep = declare_dependency(
+  link_with: http_lib,
   include_directories: '..'
   )

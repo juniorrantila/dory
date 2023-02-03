@@ -1,7 +1,7 @@
 #include "Headers.h"
 #include <Ty/Vector.h>
 
-namespace HTML {
+namespace HTTP {
 
 ErrorOr<Headers> Headers::create_from(StringView source)
 {

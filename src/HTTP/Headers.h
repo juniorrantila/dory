@@ -2,7 +2,7 @@
 #include <Ty/ErrorOr.h>
 #include <Ty/Optional.h>
 
-namespace HTML {
+namespace HTTP {
 
 struct Get {
     StringView slug;

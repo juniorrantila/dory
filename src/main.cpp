@@ -1,11 +1,13 @@
 #include <CLI/ArgumentParser.h>
+#include <Core/MappedFile.h>
 #include <Core/Print.h>
 #include <Core/TCPListener.h>
-#include <HTML/Headers.h>
+#include <HTTP/Headers.h>
 #include <Main/Main.h>
 #include <Ty/Parse.h>
 #include <Ty/SmallCapture.h>
 #include <Ty/SmallMap.h>
+#include <Ty/StringBuffer.h>
 
 ErrorOr<int> Main::main(int argc, c_string argv[])
 {
@@ -78,7 +80,7 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
     while (true) {
         auto client = TRY(server.accept());
         auto message = TRY(client.read());
-        auto headers = TRY(HTML::Headers::create_from(message.view()));
+        auto headers = TRY(HTTP::Headers::create_from(message.view()));
         auto get = TRY(headers.get()).or_else("/404"sv);
         auto page_id = TRY(router.find(get.slug)
                           .or_else(router.find("/404"sv))
