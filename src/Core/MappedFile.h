@@ -18,12 +18,22 @@ struct MappedFile {
         other.invalidate();
     }
 
-    static ErrorOr<MappedFile> open(StringView path);
-    static ErrorOr<MappedFile> open(c_string path);
     ~MappedFile();
 
-    StringView view() const { return StringView(m_data, m_size); }
+    constexpr MappedFile& operator=(MappedFile&& other)
+    {
+        destroy();
+        m_data = other.m_data;
+        m_size = other.m_size;
+        m_fd = other.m_fd;
+        other.invalidate();
+        return *this;
+    }
 
+    static ErrorOr<MappedFile> open(StringView path);
+    static ErrorOr<MappedFile> open(c_string path);
+
+    StringView view() const { return StringView(m_data, m_size); }
     bool is_valid() const { return m_data != nullptr; }
     void invalidate() { m_data = nullptr; }
 
@@ -34,6 +44,8 @@ private:
         , m_fd(fd)
     {
     }
+
+    void destroy() const;
 
     constexpr MappedFile() = default;
 };

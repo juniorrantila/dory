@@ -29,11 +29,16 @@ ErrorOr<MappedFile> MappedFile::open(c_string path)
     return MappedFile((c_string)data, size, fd);
 }
 
+void MappedFile::destroy() const
+{
+    System::munmap((void*)m_data, m_size).ignore();
+    System::close(m_fd).ignore();
+}
+
 MappedFile::~MappedFile()
 {
     if (is_valid()) {
-        System::munmap((void*)m_data, m_size).ignore();
-        System::close(m_fd).ignore();
+        destroy();
         invalidate();
     }
 }
