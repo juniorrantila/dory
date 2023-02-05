@@ -4,6 +4,7 @@ subdir('Mem')
 subdir('CLI')
 subdir('Main')
 subdir('HTTP')
+subdir('Web')
 
 nemo_exe = executable('nemo', [
     'main.cpp',
@@ -16,4 +17,5 @@ nemo_exe = executable('nemo', [
     mem_dep,
     ty_dep,
     http_dep,
+    web_dep,
   ])
