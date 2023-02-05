@@ -75,4 +75,4 @@ private:
 
 }
 
-using namespace Ty;
+using Ty::SmallMap;

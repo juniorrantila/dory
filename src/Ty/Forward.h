@@ -22,6 +22,9 @@ struct Formatter;
 template <typename Signature>
 class Function;
 
+template <typename Out, typename... In>
+struct SmallCapture;
+
 }
 
 using namespace Ty;
