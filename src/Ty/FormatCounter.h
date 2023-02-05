@@ -37,9 +37,10 @@ struct FormatCounter {
     static constexpr ErrorOr<u32> write(Args... args) requires(
         sizeof...(args) > 1)
     {
+        auto dummy = FormatCounter();
         constexpr auto const args_size = sizeof...(Args);
         ErrorOr<u32> parts[] {
-            write(args)...,
+            Formatter<Args>::write(dummy, args)...,
         };
         u32 sum = 0;
         for (u32 i = 0; i < args_size; i++)
@@ -50,7 +51,7 @@ struct FormatCounter {
     template <typename... Args>
     static constexpr ErrorOr<u32> writeln(Args... args)
     {
-        return write(args..., "\n");
+        return write(args..., "\n"sv);
     }
 };
 
