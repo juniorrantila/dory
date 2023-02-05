@@ -1,6 +1,7 @@
 #pragma once
 #include <Ty/ErrorOr.h>
 #include <Ty/Optional.h>
+#include <Ty/Concepts.h>
 
 namespace HTTP {
 
@@ -27,3 +28,13 @@ private:
 };
 
 }
+
+template <>
+struct Ty::Formatter<HTTP::Get> {
+    template <typename U>
+    requires Writable<U>
+    static constexpr ErrorOr<u32> write(U& to, HTTP::Get const& get)
+    {
+        return TRY(to.write("HTTP::Get(\""sv, get.slug, "\")"sv));
+    }
+};
