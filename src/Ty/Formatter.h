@@ -246,6 +246,48 @@ struct Formatter<Error> {
     }
 };
 
+template <typename T, typename E>
+struct Formatter<ErrorOr<T, E>>
+{
+    template <typename U>
+    requires Writable<U>
+    static constexpr ErrorOr<u32> write(U& to, ErrorOr<T, E> const& erroror)
+    {
+        auto size = TRY(to.write("ErrorOr("sv));
+
+        if (erroror.is_error()) {
+            size += TRY(to.write(erroror.error()));
+        } else if (erroror.has_value()) {
+            size += TRY(to.write(erroror.value()));
+        } else {
+            size += TRY(to.write("Moved"sv));
+        }
+
+        size += TRY(to.write(")"sv));
+        return size;
+    }
+};
+
+template <typename T>
+struct Formatter<Optional<T>>
+{
+    template <typename U>
+    requires Writable<U>
+    static constexpr ErrorOr<u32> write(U& to, Optional<T> const& maybe_value)
+    {
+        auto size = TRY(to.write("Optional("sv));
+
+        if (maybe_value.has_value()) {
+            size += TRY(to.write(maybe_value.value()));
+        } else {
+            size += TRY(to.write("None"sv));
+        }
+
+        size += TRY(to.write(")"sv));
+        return size;
+    }
+};
+
 }
 
 using namespace Ty;
