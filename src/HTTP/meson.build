@@ -1,5 +1,6 @@
 http_lib = library('http', [
-    'Headers.cpp',
+      'Headers.cpp',
+      'Response.cpp',
     ],
     dependencies: [
       core_dep,
