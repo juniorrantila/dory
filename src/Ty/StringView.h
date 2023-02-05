@@ -93,6 +93,13 @@ struct StringView {
         return sub_view(0, other.size) == other;
     }
 
+    constexpr bool ends_with(StringView other) const
+    {
+        if (size < other.size)
+            return false;
+        return part(size - other.size, size) == other;
+    }
+
     constexpr StringView shrink_from_start(u32 amount) const
     {
         return { &data[amount], size - amount };
