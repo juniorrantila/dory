@@ -316,7 +316,7 @@ struct [[nodiscard]] Optional<T*> {
     explicit constexpr operator bool() { return has_value(); }
 
     template <typename E>
-    constexpr ErrorOr<T, E> or_throw(
+    constexpr ErrorOr<T*, E> or_throw(
         E error) requires is_trivially_copyable<E>
     {
         if (has_value())
@@ -325,7 +325,7 @@ struct [[nodiscard]] Optional<T*> {
     }
 
     template <typename E>
-    constexpr ErrorOr<T, E> or_throw(E&& error) requires(
+    constexpr ErrorOr<T*, E> or_throw(E&& error) requires(
         !is_trivially_copyable<E>)
     {
         if (has_value())
