@@ -93,21 +93,11 @@ struct [[nodiscard]] ErrorOr {
     constexpr E const& error() const { return m_error; }
 
     template <typename F>
-    decltype(auto) or_else(F callback)
+    constexpr ErrorOr<T, E> or_else(F callback)
     {
         if (is_error())
-            return callback();
-        using Return = decltype(callback());
-        return Return(release_value());
-    }
-
-    template <typename U>
-    constexpr decltype(auto) or_else(U value) requires(
-        !requires(U value) { value(); })
-    {
-        if (is_error())
-            return value;
-        return U(release_value());
+            return callback(release_error());
+        return release_value();
     }
 
     template <typename U>
@@ -165,9 +155,9 @@ struct [[nodiscard]] ErrorOr<void, E> {
     template <typename F>
     decltype(auto) or_else(F callback) const
     {
+        using Return = decltype(callback(release_error()));
         if (is_error())
-            return callback();
-        using Return = decltype(callback());
+            return callback(release_error());
         return Return();
     }
 
