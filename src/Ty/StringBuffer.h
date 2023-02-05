@@ -50,6 +50,15 @@ struct StringBuffer {
         return buffer;
     }
 
+    template <typename T>
+    static constexpr ErrorOr<StringBuffer> create_fill(T value)
+    {
+        auto capacity = TRY(FormatCounter::count(value)) + 1;
+        auto buffer = TRY(create(capacity));
+        TRY(buffer.write(value));
+        return buffer;
+    }
+
     constexpr StringBuffer()
         : m_data(m_storage)
         , m_capacity(inline_capacity)
