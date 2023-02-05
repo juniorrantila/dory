@@ -100,14 +100,6 @@ struct [[nodiscard]] ErrorOr {
         return release_value();
     }
 
-    template <typename U>
-    ErrorOr<U, E> on_success(U success_value)
-    {
-        if (is_error())
-            return release_error();
-        return success_value;
-    }
-
     constexpr void ignore() const { }
 
 private:
@@ -159,23 +151,6 @@ struct [[nodiscard]] ErrorOr<void, E> {
         if (is_error())
             return callback(release_error());
         return Return();
-    }
-
-    template <typename U>
-    constexpr decltype(auto) or_else(U value) const
-        requires(!requires(U value) { value(); })
-    {
-        if (is_error())
-            return value;
-        return U();
-    }
-
-    template <typename U>
-    ErrorOr<U, E> on_success(U success_value)
-    {
-        if (is_error())
-            return release_error();
-        return success_value;
     }
 
     constexpr void ignore() const { }
