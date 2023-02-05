@@ -80,7 +80,7 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
     auto dynamic_router = Router();
 
     auto foo_json_path = TRY(StringBuffer::create_fill(static_folder_path, "/json/foo.json"sv));
-    auto foo_json_file = TRY(Web::File::create(foo_json_path.view()));
+    auto foo_json_file = TRY(Web::File::open(foo_json_path.view()));
     TRY(dynamic_router.append("/json/foo.json"sv, [&]() -> ErrorOr<HTTP::Response> {
         TRY(foo_json_file.reload());
         return HTTP::Response {
@@ -165,7 +165,7 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
         }
 
         auto not_found_path = TRY(StringBuffer::create_fill(static_folder_path, "/error/404.html"sv));
-        auto not_found_file = TRY(Web::File::create(not_found_path.view()));
+        auto not_found_file = TRY(Web::File::open(not_found_path.view()));
         TRY(client.write(HTTP::Response {
             .mime_type = not_found_file.mime_type(),
             .body = not_found_file.view(),

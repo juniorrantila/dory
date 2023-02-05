@@ -3,7 +3,7 @@
 
 namespace Web {
 
-ErrorOr<File> File::create(StringView path)
+ErrorOr<File> File::open(StringView path)
 {
     return File {
         TRY(Core::MappedFile::open(path)),

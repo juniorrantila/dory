@@ -6,7 +6,7 @@ namespace Web {
 
 struct File {
 
-    static ErrorOr<File> create(StringView path);
+    static ErrorOr<File> open(StringView path);
 
     ErrorOr<void> reload();
 

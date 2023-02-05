@@ -30,7 +30,7 @@ void FileRouter::destroy() const
 ErrorOr<void> FileRouter::add_route(StringView route, StringView filename)
 {
     TRY(m_static_routes.append(route, filename));
-    TRY(m_files.append(filename, TRY(File::create(filename))));
+    TRY(m_files.append(filename, TRY(File::open(filename))));
 
     auto name_buf = TRY(StringBuffer::create_fill(filename, "\0"sv));
     auto watch_file = inotify_add_watch(m_filewatch_fd, name_buf.data(), IN_MODIFY);
