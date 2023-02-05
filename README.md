@@ -30,7 +30,7 @@ When developing you may want to run the following command:
 ```
 
 This will add `/path/to/src` to your `PATH`, meaning you
-will be able write `helium` instead of `./build/src/helium`
+will be able write `nemo` instead of `./build/src/nemo`
 to start the webserver.
 
 ## Usage
