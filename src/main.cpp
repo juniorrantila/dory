@@ -106,7 +106,7 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
         if (raw_request.view().is_empty()) {
             TRY(client.write(HTTP::Response {
                 .extra_headers = "Accept: */*\r\n"sv,
-                .code = HTTP::ResponseCode::Ok,
+                .code = HTTP::ResponseCode::Continue,
             }));
             continue;
         }

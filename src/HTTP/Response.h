@@ -7,6 +7,7 @@
 namespace HTTP {
 
 enum class ResponseCode : u16 {
+    Continue = 100,
     Ok = 200,
     NotFound = 404,
     InternalServerError = 500,
