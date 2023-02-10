@@ -54,12 +54,6 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
     auto favicon_path = TRY(StringBuffer::create_fill(static_folder_path, "/icons/favicon.ico"sv));
     TRY(file_router.add_route("/favicon.ico"sv, favicon_path.view()));
 
-    auto favicon_16x16_path = TRY(StringBuffer::create_fill(static_folder_path, "/icons/favicon-16x16.png"sv));
-    TRY(file_router.add_route("/icons/favicon-16x16.png"sv, favicon_16x16_path.view()));
-
-    auto favicon_32x32_path = TRY(StringBuffer::create_fill(static_folder_path, "/icons/favicon-32x32.png"sv));
-    TRY(file_router.add_route("/icons/favicon-32x32.png"sv, favicon_32x32_path.view()));
-
     auto favicon_192x192_path = TRY(StringBuffer::create_fill(static_folder_path, "/icons/favicon-192x192.png"sv));
     TRY(file_router.add_route("/icons/favicon-192x192.png"sv, favicon_192x192_path.view()));
 
