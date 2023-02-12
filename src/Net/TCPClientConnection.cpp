@@ -1,13 +1,25 @@
 #include "TCPClientConnection.h"
+#include "Ty/StringBuffer.h"
 #include <Core/Print.h>
+#include <netdb.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 namespace Net {
 
-ErrorOr<TCPClientConnection> TCPClientConnection::create(int socket)
-{
-    return TCPClientConnection(socket);
+ErrorOr<TCPClientConnection> TCPClientConnection::create(
+    int socket,
+    struct sockaddr_storage address,
+    socklen_t address_size
+) {
+    return TCPClientConnection {
+        address,
+        address_size,
+        socket,
+        TRY(StringBuffer::create()),
+    };
 }
 
 void TCPClientConnection::destroy() const
@@ -52,6 +64,27 @@ ErrorOr<void> TCPClientConnection::flush_write() const
     write_buffer.clear();
 
     return {};
+}
+
+static void* get_in_addr(struct sockaddr* sa)
+{
+    if (sa->sa_family == AF_INET)
+        return &((struct sockaddr_in*)sa)->sin_addr;
+    return &((struct sockaddr_in6*)sa)->sin6_addr;
+}
+
+ErrorOr<StringBuffer> TCPClientConnection::printable_address() const
+{
+    char buf[INET6_ADDRSTRLEN + 1];
+    c_string res = inet_ntop(
+            address.ss_family,
+            get_in_addr((struct sockaddr*)&address),
+            buf,
+            sizeof(buf)
+        );
+    if (res == nullptr)
+        return Error::from_errno();
+    return StringBuffer::create_fill(StringView::from_c_string(buf));
 }
 
 }

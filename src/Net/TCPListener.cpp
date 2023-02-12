@@ -46,11 +46,13 @@ void TCPListener::destroy() const
 
 ErrorOr<TCPClientConnection> TCPListener::accept() const
 {
-    int client_socket = ::accept(m_socket, nullptr, nullptr);
+    sockaddr_storage address;
+    socklen_t address_size;
+    int client_socket = ::accept(m_socket, (struct sockaddr*)&address, &address_size);
     if (client_socket < 0) {
         return Error::from_errno();
     }
-    return TRY(TCPClientConnection::create(client_socket));
+    return TRY(TCPClientConnection::create(client_socket, address, address_size));
 }
 
 }
