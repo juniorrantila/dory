@@ -87,6 +87,23 @@ struct StringBuffer {
         }
     }
 
+    constexpr StringBuffer& operator=(StringBuffer&& other)
+    {
+        this->~StringBuffer();
+
+        m_data = other.m_data;
+        m_size = other.m_size;
+        m_capacity = other.m_capacity;
+        if (!other.is_saturated()) {
+            __builtin_memcpy(m_storage, other.m_storage,
+                inline_capacity);
+            m_data = m_storage;
+        }
+        other.invalidate();
+
+        return *this;
+    }
+
     template <typename... Args>
     constexpr ErrorOr<u32> write(Args... args) requires(
         sizeof...(Args) > 1)
