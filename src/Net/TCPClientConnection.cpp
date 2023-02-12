@@ -34,14 +34,16 @@ ErrorOr<StringBuffer> TCPClientConnection::read() const
 
     isize bytes_read = -1;
     while (true) {
-        static char buffer[1024];
+        char buffer[1024];
         isize buffer_size = sizeof(buffer);
-        bytes_read = ::read(socket, buffer, buffer_size);
-        buffer[bytes_read] = '\0';
+        bytes_read = ::recv(socket, buffer, buffer_size - 1, 0);
         if (bytes_read < 0)
             return Error::from_errno();
+        buffer[bytes_read] = '\0';
         TRY(result.write(StringView::from_c_string(buffer)));
-        if (bytes_read == 0 || bytes_read < buffer_size)
+        if (bytes_read == 0)
+            break; // NOTE: Client closed connection.
+        if (bytes_read < buffer_size)
             break;
     }
 
