@@ -1,8 +1,9 @@
 #include "TCPClientConnection.h"
-#include "Print.h"
+#include <Core/Print.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
-namespace Core {
+namespace Net {
 
 ErrorOr<TCPClientConnection> TCPClientConnection::create(int socket)
 {
@@ -11,17 +12,17 @@ ErrorOr<TCPClientConnection> TCPClientConnection::create(int socket)
 
 void TCPClientConnection::destroy() const
 {
-    (void)const_cast<TCPClientConnection*>(this)->flush_write();
+    flush_write().ignore();
     ::close(socket);
 }
 
-ErrorOr<StringBuffer> TCPClientConnection::read()
+ErrorOr<StringBuffer> TCPClientConnection::read() const
 {
     auto result = TRY(StringBuffer::create());
 
     isize bytes_read = -1;
     while (true) {
-        static char buffer[16 * 1024 * 1024];
+        static char buffer[1024];
         isize buffer_size = sizeof(buffer);
         bytes_read = ::read(socket, buffer, buffer_size);
         buffer[bytes_read] = '\0';
@@ -42,9 +43,9 @@ ErrorOr<u32> TCPClientConnection::write(StringView message)
     return TRY(write_buffer.write(message));
 }
 
-ErrorOr<void> TCPClientConnection::flush_write()
+ErrorOr<void> TCPClientConnection::flush_write() const
 {
-    auto bytes_written = ::write(socket, write_buffer.data(), write_buffer.size());
+    auto bytes_written = send(socket, write_buffer.data(), write_buffer.size(), MSG_NOSIGNAL);
     if (bytes_written < 0) {
         return Error::from_errno();
     }

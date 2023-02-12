@@ -3,7 +3,7 @@
 #include <Ty/Base.h>
 #include <Ty/ErrorOr.h>
 
-namespace Core {
+namespace Net {
 
 struct TCPListener {
     static ErrorOr<TCPListener> create(u16 port,

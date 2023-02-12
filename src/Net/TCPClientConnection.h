@@ -2,11 +2,11 @@
 #include <Ty/StringBuffer.h>
 #include <Ty/StringView.h>
 
-namespace Core {
+namespace Net {
 
 struct TCPClientConnection {
     int socket;
-    StringBuffer write_buffer;
+    mutable StringBuffer write_buffer;
 
     constexpr TCPClientConnection(TCPClientConnection&& other)
         : socket(other.socket)
@@ -24,8 +24,8 @@ struct TCPClientConnection {
     void destroy() const;
 
     static ErrorOr<TCPClientConnection> create(int socket);
-    ErrorOr<StringBuffer> read();
-    ErrorOr<void> flush_write();
+    ErrorOr<StringBuffer> read() const;
+    ErrorOr<void> flush_write() const;
     ErrorOr<u32> write(StringView message);
 
     template <typename... Args>
@@ -73,5 +73,3 @@ private:
 };
 
 }
-
-using Core::TCPClientConnection;

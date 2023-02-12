@@ -2,8 +2,6 @@ core_lib = library('core', [
     'File.cpp',
     'MappedFile.cpp',
     'System.cpp',
-    'TCPListener.cpp',
-    'TCPClientConnection.cpp',
     ],
     dependencies: ty_dep)
 

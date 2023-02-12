@@ -1,12 +1,12 @@
-#include "TCPListener.h"
-#include "System.h"
 #include "TCPClientConnection.h"
-#include "Print.h"
+#include "TCPListener.h"
+#include <Core/Print.h>
+#include <Core/System.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-namespace Core {
+namespace Net {
 
 ErrorOr<TCPListener> TCPListener::create(u16 port,
     u16 queued_connections)

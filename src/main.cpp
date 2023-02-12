@@ -1,7 +1,7 @@
 #include <CLI/ArgumentParser.h>
 #include <Core/MappedFile.h>
 #include <Core/Print.h>
-#include <Core/TCPListener.h>
+#include <Net/TCPListener.h>
 #include <HTTP/Headers.h>
 #include <HTTP/Response.h>
 #include <Main/Main.h>
@@ -97,7 +97,8 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
     auto& log = Core::File::stderr();
 
     log.writeln("Serving on port: "sv, port).ignore();
-    auto server = TRY(Core::TCPListener::create(port));
+
+    auto server = TRY(Net::TCPListener::create(port));
     while (true) {
         auto client = TRY(server.accept());
         auto raw_request = TRY(client.read());
