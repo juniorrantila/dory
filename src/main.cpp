@@ -12,6 +12,7 @@
 #include <Ty/StringView.h>
 #include <Web/FileRouter.h>
 #include <Web/File.h>
+#include <Ty/Defer.h>
 
 ErrorOr<int> Main::main(int argc, c_string argv[])
 {
@@ -101,6 +102,12 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
     auto server = TRY(Net::TCPListener::create(port));
     while (true) {
         auto client = TRY(server.accept());
+        auto client_name = TRY(client.printable_address());
+        log.writeln(client_name.view(), " connected"sv).ignore();
+        Defer print_disconnect = [&] {
+            log.writeln("dropped "sv, client_name.view()).ignore();
+        };
+
         auto raw_request = TRY(client.read());
         log.writeln("\nrequest:\n"sv, raw_request.view(), "request end\n"sv).ignore();
 
