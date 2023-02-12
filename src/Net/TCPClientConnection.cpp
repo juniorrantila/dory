@@ -59,9 +59,14 @@ ErrorOr<u32> TCPClientConnection::write(StringView message)
 
 ErrorOr<void> TCPClientConnection::flush_write() const
 {
-    auto bytes_written = send(socket, write_buffer.data(), write_buffer.size(), MSG_NOSIGNAL);
-    if (bytes_written < 0) {
-        return Error::from_errno();
+    u32 total_bytes_written = 0;
+
+    while (total_bytes_written < write_buffer.size()) {
+        auto view = write_buffer.view().shrink_from_start(total_bytes_written);
+        auto bytes_written = send(socket, view.data, view.size, MSG_NOSIGNAL);
+        if (bytes_written < 0)
+            return Error::from_errno();
+        total_bytes_written += bytes_written;
     }
     write_buffer.clear();
 
