@@ -28,7 +28,6 @@ struct TCPClientConnection {
             invalidate();
         }
     }
-    void destroy() const;
 
     static ErrorOr<TCPClientConnection> create(int socket, struct sockaddr_storage, socklen_t);
     ErrorOr<StringBuffer> read() const;
@@ -84,6 +83,8 @@ private:
         , write_buffer(move(write_buffer))
     {
     }
+
+    void destroy() const;
 
     bool is_valid() const { return socket != -1; }
     void invalidate() { socket = -1; }
