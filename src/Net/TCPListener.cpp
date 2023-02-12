@@ -42,9 +42,6 @@ ErrorOr<TCPListener> TCPListener::create(u16 port,
 
 void TCPListener::destroy() const
 {
-    if (shutdown(m_socket, SHUT_RDWR) < 0) {
-        dbgln("Error: "sv, Error::from_errno());
-    }
     if (close(m_socket) < 0) {
         dbgln("Error: "sv, Error::from_errno());
     }
