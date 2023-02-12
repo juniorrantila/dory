@@ -2,31 +2,34 @@
 #include "TCPListener.h"
 #include <Core/Print.h>
 #include <Core/System.h>
-#include <netinet/in.h>
+#include <asm-generic/socket.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <netdb.h>
 
 namespace Net {
 
 ErrorOr<TCPListener> TCPListener::create(u16 port,
-    u16 queued_connections)
+    u16 queued_connections, IPVersion ip_version)
 {
-    int socket = ::socket(AF_INET, SOCK_STREAM, 0);
-    if (socket < 0) {
-        return Error::from_errno();
-    }
+    auto port_buffer = TRY(StringBuffer::create_fill(port, "\0"sv));
 
-    struct sockaddr_in address {
-        .sin_family = AF_INET,
-        .sin_port = htons(port),
-        .sin_addr.s_addr = INADDR_ANY,
+    struct addrinfo hints = {
+        .ai_flags = AI_PASSIVE,
+        .ai_family = ip_version == IPVersion::V4 ? AF_INET : AF_INET6,
+        .ai_socktype = SOCK_STREAM,
     };
 
-    auto rv = bind(socket, (struct sockaddr*)&address, sizeof(address));
-    if (rv < 0) {
+    struct addrinfo* res = nullptr;
+    if (getaddrinfo(nullptr, port_buffer.data(), &hints, &res) < 0)
         return Error::from_errno();
-    }
 
+    int socket = ::socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (socket < 0)
+        return Error::from_errno();
+    if (bind(socket, res->ai_addr, res->ai_addrlen) < 0)
+        return Error::from_errno();
     if (listen(socket, queued_connections) < 0) {
         return Error::from_errno();
     }

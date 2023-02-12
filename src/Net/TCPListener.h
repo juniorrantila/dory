@@ -5,9 +5,14 @@
 
 namespace Net {
 
+enum class IPVersion {
+    V4,
+    V6
+};
+
 struct TCPListener {
     static ErrorOr<TCPListener> create(u16 port,
-        u16 queued_connections = 8);
+        u16 queued_connections = 8, IPVersion = IPVersion::V4);
     constexpr TCPListener(TCPListener&& other)
         : m_socket(other.m_socket)
         , m_port(other.m_port)
