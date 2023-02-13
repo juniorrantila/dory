@@ -79,15 +79,15 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
     TRY(dynamic_router.append("/json/foo.json"sv, [&]() -> ErrorOr<HTTP::Response> {
         TRY(foo_json_file.reload());
         return HTTP::Response {
-            .mime_type = foo_json_file.mime_type(),
-            .body = foo_json_file.view(),
+            .body = json_file.view(),
             .extra_headers = (
                 "Access-Control-Allow-Origin: *\r\n"
                 "Access-Control-Allow-Methods: *\r\n"
                 "Access-Control-Allow-Headers: *\r\n"
                 ""sv
             ),
-            .code = HTTP::ResponseCode::Ok
+            .mime_type = json_file.mime_type(),
+            .code = HTTP::ResponseCode::Ok,
         };
     }));
 
@@ -125,7 +125,6 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
         auto maybe_get = TRY(headers.get());
         if (!maybe_get.has_value()) {
             TRY(client.write(HTTP::Response {
-                .mime_type = "text/plain"sv,
                 .body = "not found"sv,
                 .code = HTTP::ResponseCode::NotFound,
             }));
@@ -137,8 +136,8 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
             TRY(file_router.reload_files_if_needed(log));
             auto const& file = file_router[id.value()];
             TRY(client.write(HTTP::Response {
-                .mime_type = file.mime_type(),
                 .body = file.view(),
+                .mime_type = file.mime_type(),
                 .code = HTTP::ResponseCode::Ok,
             }));
             continue;
@@ -151,13 +150,11 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
                 error_buffer.clear();
                 TRY(error_buffer.write(error));
                 return HTTP::Response {
-                    .mime_type = "text/plain"sv,
                     .body = error_buffer.view(),
                     .code = HTTP::ResponseCode::InternalServerError,
                 };
             }).or_else([](auto) {
                 return HTTP::Response {
-                    .mime_type = "text/plain"sv,
                     .body = "Could not report error"sv,
                     .code = HTTP::ResponseCode::InternalServerError,
                 };
@@ -168,8 +165,8 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
         auto not_found_path = TRY(StringBuffer::create_fill(static_folder_path, "/error/404.html"sv));
         auto not_found_file = TRY(Web::File::open(not_found_path.view()));
         TRY(client.write(HTTP::Response {
-            .mime_type = not_found_file.mime_type(),
             .body = not_found_file.view(),
+            .mime_type = not_found_file.mime_type(),
             .code = HTTP::ResponseCode::NotFound,
         }));
     }

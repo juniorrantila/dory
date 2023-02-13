@@ -3,6 +3,7 @@
 #include <Ty/Concepts.h>
 #include <Ty/StringView.h>
 #include <Ty/ErrorOr.h>
+#include <Web/MimeType.h>
 
 namespace HTTP {
 
@@ -15,9 +16,9 @@ enum class ResponseCode : u16 {
 StringView response_code_string(ResponseCode);
 
 struct Response {
-    StringView mime_type { "text/plain"sv };
     StringView body { ""sv };
     StringView extra_headers { ""sv };
+    Web::MimeType mime_type { Web::MimeType::TextPlain };
     ResponseCode code { ResponseCode::Ok };
 };
 

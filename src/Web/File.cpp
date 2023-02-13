@@ -23,25 +23,25 @@ ErrorOr<void> File::reload()
     return {};
 }
 
-StringView File::mime_type() const
+MimeType File::mime_type() const
 {
     if (m_path.ends_with(".png"sv))
-        return "image/png"sv;
+        return MimeType::ImagePng;
     if (m_path.ends_with(".html"sv))
-        return "text/html"sv;
+        return MimeType::TextHtml;
     if (m_path.ends_with(".css"sv))
-        return "text/css"sv;
+        return MimeType::TextCss;
     if (m_path.ends_with(".js"sv))
-        return "text/javascript"sv;
+        return MimeType::TextJavascript;
     if (m_path.ends_with(".json"sv))
-        return "application/json"sv;
+        return MimeType::ApplicationJson;
     if (m_path.ends_with(".ico"sv))
-        return "image/vnd.microsoft.icon"sv;
+        return MimeType::ImageIco;
     if (m_path.ends_with(".map"sv))
-        return "application/json"sv;
+        return MimeType::ApplicationJson;
     if (m_path.ends_with(".txt"sv))
-        return "text/plain"sv;
-    return "application/octet-stream"sv;
+        return MimeType::TextPlain;
+    return MimeType::ApplicationOctetStream;
 }
 
 }

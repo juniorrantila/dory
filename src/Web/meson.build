@@ -1,6 +1,7 @@
 web_lib = library('web', [
       'File.cpp',
       'FileRouter.cpp',
+      'MimeType.cpp',
     ],
     dependencies: [
       core_dep,

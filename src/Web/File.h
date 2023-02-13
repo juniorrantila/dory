@@ -1,6 +1,7 @@
 #pragma once
 #include <Core/MappedFile.h>
 #include <Ty/StringBuffer.h>
+#include "MimeType.h"
 
 namespace Web {
 
@@ -10,7 +11,7 @@ struct File {
 
     ErrorOr<void> reload();
 
-    StringView mime_type() const;
+    MimeType mime_type() const;
     StringView view() const { return m_file.view(); }
 
 private:
