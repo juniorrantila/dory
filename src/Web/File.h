@@ -12,6 +12,8 @@ struct File {
     ErrorOr<void> reload();
 
     MimeType mime_type() const;
+    StringView charset() const;
+
     StringView view() const { return m_file.view(); }
 
 private:

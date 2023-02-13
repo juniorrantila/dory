@@ -1,18 +1,19 @@
 #include <CLI/ArgumentParser.h>
 #include <Core/MappedFile.h>
 #include <Core/Print.h>
-#include <Net/TCPListener.h>
 #include <HTTP/Headers.h>
 #include <HTTP/Response.h>
 #include <Main/Main.h>
+#include <Net/TCPListener.h>
+#include <Ty/Defer.h>
 #include <Ty/Parse.h>
 #include <Ty/SmallCapture.h>
 #include <Ty/SmallMap.h>
 #include <Ty/StringBuffer.h>
 #include <Ty/StringView.h>
-#include <Web/FileRouter.h>
 #include <Web/File.h>
-#include <Ty/Defer.h>
+#include <Web/FileRouter.h>
+#include <Web/MimeType.h>
 
 ErrorOr<int> Main::main(int argc, c_string argv[])
 {
@@ -80,6 +81,7 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
         TRY(foo_json_file.reload());
         return HTTP::Response {
             .body = json_file.view(),
+            .charset = json_file.charset(),
             .extra_headers = (
                 "Access-Control-Allow-Origin: *\r\n"
                 "Access-Control-Allow-Methods: *\r\n"
@@ -137,6 +139,7 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
             auto const& file = file_router[id.value()];
             TRY(client.write(HTTP::Response {
                 .body = file.view(),
+                .charset = file.charset(),
                 .mime_type = file.mime_type(),
                 .code = HTTP::ResponseCode::Ok,
             }));

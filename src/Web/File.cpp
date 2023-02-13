@@ -23,6 +23,28 @@ ErrorOr<void> File::reload()
     return {};
 }
 
+StringView File::charset() const
+{
+    switch(mime_type()) {
+    case MimeType::ApplicationJson:
+        return "utf-8"sv;
+    case MimeType::ApplicationOctetStream:
+        return ""sv;
+    case MimeType::ImageIco:
+        return ""sv;
+    case MimeType::ImagePng:
+        return ""sv;
+    case MimeType::TextCss:
+        return "utf-8"sv;
+    case MimeType::TextHtml:
+        return "utf-8"sv;
+    case MimeType::TextJavascript:
+        return "utf-8"sv;
+    case MimeType::TextPlain:
+        return "utf-8"sv;
+    }
+}
+
 MimeType File::mime_type() const
 {
     if (m_path.ends_with(".png"sv))
