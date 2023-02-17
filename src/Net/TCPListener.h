@@ -19,20 +19,18 @@ struct TCPListener {
     {
         other.invalidate();
     }
-
-    ~TCPListener()
-    {
-        if (is_valid()) {
-            destroy();
-            invalidate();
-        }
-    }
+    ~TCPListener();
 
     u16 port() const { return m_port; }
 
-    void destroy() const;
-    bool is_valid() const { return m_socket != -1; }
-    void invalidate() { m_socket = -1; }
+    ErrorOr<void> destroy()
+    {
+        if (is_valid()) {
+            TRY(close());
+            invalidate();
+        }
+        return {};
+    }
 
     ErrorOr<TCPClientConnection> accept() const;
 
@@ -42,6 +40,10 @@ private:
         , m_port(port)
     {
     }
+
+    ErrorOr<void> close() const;
+    bool is_valid() const { return m_socket != -1; }
+    void invalidate() { m_socket = -1; }
 
     int m_socket;
     u16 m_port;

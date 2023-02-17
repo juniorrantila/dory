@@ -40,11 +40,17 @@ ErrorOr<TCPListener> TCPListener::create(u16 port,
     return TCPListener(socket, port);
 }
 
-void TCPListener::destroy() const
+TCPListener::~TCPListener()
 {
-    if (close(m_socket) < 0) {
-        dbgln("Error: "sv, Error::from_errno());
-    }
+    destroy().or_else([&](auto error) {
+        Core::File::stderr().writeln("Error: "sv, error).ignore();
+    });
+}
+
+ErrorOr<void> TCPListener::close() const
+{
+    TRY(Core::System::close(m_socket));
+    return {};
 }
 
 ErrorOr<TCPClientConnection> TCPListener::accept() const
