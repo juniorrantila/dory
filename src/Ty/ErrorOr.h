@@ -145,7 +145,7 @@ struct [[nodiscard]] ErrorOr<void, E> {
     constexpr E const& error() const { return m_error.value(); }
 
     template <typename F>
-    decltype(auto) or_else(F callback) const
+    decltype(auto) or_else(F callback)
     {
         using Return = decltype(callback(release_error()));
         if (is_error())
