@@ -1,6 +1,6 @@
-# The Nemo webserver
+# The Dory webserver
 
-**Nemo** is a webserver written in C++.
+**Dory** is a small webserver
 
 ## Build instructions
 
@@ -20,7 +20,7 @@ meson build
 ninja -C build
 ```
 
-After building, the Nemo executable will be found in
+After building, the Dory executable will be found in
 `./build/src/`.
 
 When developing you may want to run the following command:
@@ -30,11 +30,11 @@ When developing you may want to run the following command:
 ```
 
 This will add `/path/to/src` to your `PATH`, meaning you
-will be able write `nemo` instead of `./build/src/nemo`
+will be able write `dory` instead of `./build/src/dory`
 to start the webserver.
 
 ## Usage
 
 ```sh
-nemo -p <port>
+dory -p <port>
 ```

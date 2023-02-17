@@ -51,7 +51,7 @@ struct Ty::Formatter<HTTP::Response> {
         size += TRY(to.write("\r\n"sv));
 
         size += TRY(to.write("Content-Length: "sv, response.body.size, "\r\n"sv));
-        size += TRY(to.write("Server: Nemo\r\n"sv));
+        size += TRY(to.write("Server: Dory\r\n"sv));
         size += TRY(to.write(response.extra_headers));
         size += TRY(to.write("\r\n"sv, response.body));
 

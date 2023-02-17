@@ -1,4 +1,4 @@
-project('nemo-webserver', 'cpp',
+project('dory-webserver', 'cpp',
   default_options: [
     'cpp_std=c++20',
     'c_std=gnu2x',

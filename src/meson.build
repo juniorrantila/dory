@@ -7,7 +7,7 @@ subdir('HTTP')
 subdir('Net')
 subdir('Web')
 
-nemo_exe = executable('nemo', [
+dory_exe = executable('dory', [
     'main.cpp',
   ],
   include_directories: '.',
