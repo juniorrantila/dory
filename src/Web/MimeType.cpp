@@ -19,6 +19,8 @@ StringView mime_type_string(MimeType type)
         return "text/html"sv;
     case MimeType::TextJavascript:
         return "text/javascript"sv;
+    case MimeType::TextMarkdown:
+        return "text/markdown"sv;
     case MimeType::TextPlain:
         return "text/plain"sv;
     }

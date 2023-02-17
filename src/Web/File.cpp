@@ -40,6 +40,8 @@ StringView File::charset() const
         return "utf-8"sv;
     case MimeType::TextJavascript:
         return "utf-8"sv;
+    case MimeType::TextMarkdown:
+        return "utf-8"sv;
     case MimeType::TextPlain:
         return "utf-8"sv;
     }
@@ -61,6 +63,8 @@ MimeType File::mime_type() const
         return MimeType::ImageIco;
     if (m_path.ends_with(".map"sv))
         return MimeType::ApplicationJson;
+    if (m_path.ends_with(".md"sv))
+        return MimeType::TextMarkdown;
     if (m_path.ends_with(".txt"sv))
         return MimeType::TextPlain;
     return MimeType::ApplicationOctetStream;

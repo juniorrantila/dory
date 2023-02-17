@@ -11,6 +11,7 @@ enum class MimeType {
     TextCss,
     TextHtml,
     TextJavascript,
+    TextMarkdown,
     TextPlain,
 };
 StringView mime_type_string(MimeType type);
