@@ -1,7 +1,6 @@
 #include "System.h"
 #include "Ty/Defer.h"
 #include "Ty/StringBuffer.h"
-#include <cstdlib>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -278,6 +277,30 @@ void sleep(u32 seconds)
 {
     ::exit(code);
     __builtin_unreachable();
+}
+
+ErrorOr<int> fork()
+{
+    auto pid = ::fork();
+    if (pid < 0)
+        return Error::from_errno();
+    return pid;
+}
+
+ErrorOr<void> sigemptyset(sigset_t *set)
+{
+    auto rv = ::sigemptyset(set);
+    if (rv < 0)
+        return Error::from_errno();
+    return {};
+}
+
+ErrorOr<void> sigaction(int sig, const struct sigaction *__restrict action, struct sigaction *__restrict old_action)
+{
+    auto rv = ::sigaction(sig, action, old_action);
+    if (rv < 0)
+        return Error::from_errno();
+    return {};
 }
 
 }
