@@ -1,4 +1,4 @@
-#include "TCPClientConnection.h"
+#include "TCPConnection.h"
 #include "Ty/StringBuffer.h"
 #include <Core/Print.h>
 #include <netdb.h>
@@ -9,12 +9,12 @@
 
 namespace Net {
 
-ErrorOr<TCPClientConnection> TCPClientConnection::create(
+ErrorOr<TCPConnection> TCPConnection::create(
     int socket,
     struct sockaddr_storage address,
     socklen_t address_size
 ) {
-    return TCPClientConnection {
+    return TCPConnection {
         address,
         address_size,
         socket,
@@ -22,13 +22,40 @@ ErrorOr<TCPClientConnection> TCPClientConnection::create(
     };
 }
 
-void TCPClientConnection::destroy() const
+void TCPConnection::destroy() const
 {
     flush_write().ignore();
     ::close(socket);
 }
 
-ErrorOr<StringBuffer> TCPClientConnection::read() const
+ErrorOr<TCPConnection> TCPConnection::connect(StringView host, u16 port)
+{
+    struct addrinfo hints = {
+        .ai_flags = AI_PASSIVE,
+        .ai_family = AF_INET,
+        .ai_socktype = SOCK_STREAM,
+    };
+
+    const auto host_buffer = TRY(StringBuffer::create_fill(host, "\0"sv));
+    auto port_buffer = TRY(StringBuffer::create_fill(port, "\0"sv));
+
+    struct addrinfo* res = nullptr;
+    if (getaddrinfo(host_buffer.data(), port_buffer.data(), &hints, &res) < 0)
+        return Error::from_errno();
+
+    int socket = ::socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (socket < 0)
+        return Error::from_errno();
+
+    if (::connect(socket, res->ai_addr, res->ai_addrlen) < 0)
+        return Error::from_errno();
+
+    struct sockaddr_storage addr {};
+    __builtin_memcpy(&addr, res->ai_addr, res->ai_addrlen);
+    return TRY(create(socket, addr, res->ai_addrlen));
+}
+
+ErrorOr<StringBuffer> TCPConnection::read() const
 {
     auto result = TRY(StringBuffer::create());
 
@@ -50,14 +77,14 @@ ErrorOr<StringBuffer> TCPClientConnection::read() const
     return result;
 }
 
-ErrorOr<u32> TCPClientConnection::write(StringView message)
+ErrorOr<u32> TCPConnection::write(StringView message)
 {
     if (write_buffer.size_left() < message.size)
         TRY(flush_write());
     return TRY(write_buffer.write(message));
 }
 
-ErrorOr<void> TCPClientConnection::flush_write() const
+ErrorOr<void> TCPConnection::flush_write() const
 {
     u32 total_bytes_written = 0;
 
@@ -80,7 +107,7 @@ static void* get_in_addr(struct sockaddr* sa)
     return &((struct sockaddr_in6*)sa)->sin6_addr;
 }
 
-ErrorOr<StringBuffer> TCPClientConnection::printable_address() const
+ErrorOr<StringBuffer> TCPConnection::printable_address() const
 {
     char buf[INET6_ADDRSTRLEN + 1];
     c_string res = inet_ntop(

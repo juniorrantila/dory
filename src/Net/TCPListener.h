@@ -1,5 +1,5 @@
 #pragma once
-#include "TCPClientConnection.h"
+#include "TCPConnection.h"
 #include <Ty/Base.h>
 #include <Ty/ErrorOr.h>
 
@@ -32,7 +32,7 @@ struct TCPListener {
         return {};
     }
 
-    ErrorOr<TCPClientConnection> accept() const;
+    ErrorOr<TCPConnection> accept() const;
 
 private:
     constexpr TCPListener(int socket, u16 port)

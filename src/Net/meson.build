@@ -1,5 +1,5 @@
 net_lib = library('net', [
-    'TCPClientConnection.cpp',
+    'TCPConnection.cpp',
     'TCPListener.cpp',
   ],
   dependencies: [

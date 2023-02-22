@@ -22,7 +22,7 @@ using DynamicRouter = Ty::SmallMap<StringView, Renderer>;
 static ErrorOr<void> setup_zombie_reaper();
 
 struct Connection {
-    Net::TCPClientConnection& client;
+    Net::TCPConnection& client;
     Core::File& log;
     Web::FileRouter& file_router;
     DynamicRouter const& dynamic_router;
