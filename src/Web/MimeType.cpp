@@ -2,26 +2,26 @@
 
 namespace Web {
 
-StringView mime_type_string(MimeType type)
+StringView MimeType::name() const
 {
-    switch(type) {
-    case MimeType::ApplicationJson:
+    switch(m_type) {
+    case ApplicationJson:
         return "application/json"sv;
-    case MimeType::ApplicationOctetStream:
+    case ApplicationOctetStream:
         return "application/octet-stream"sv;
-    case MimeType::ImageIco:
+    case ImageIco:
         return "image/vnd.microsoft.icon"sv;
-    case MimeType::ImagePng:
+    case ImagePng:
         return "image/png"sv;
-    case MimeType::TextCss:
+    case TextCss:
         return "text/css"sv;
-    case MimeType::TextHtml:
+    case TextHtml:
         return "text/html"sv;
-    case MimeType::TextJavascript:
+    case TextJavascript:
         return "text/javascript"sv;
-    case MimeType::TextMarkdown:
+    case TextMarkdown:
         return "text/markdown"sv;
-    case MimeType::TextPlain:
+    case TextPlain:
         return "text/plain"sv;
     }
 }

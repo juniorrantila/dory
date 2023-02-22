@@ -25,7 +25,7 @@ ErrorOr<void> File::reload()
 
 StringView File::charset() const
 {
-    switch(mime_type()) {
+    switch(mime_type().type()) {
     case MimeType::ApplicationJson:
         return "utf-8"sv;
     case MimeType::ApplicationOctetStream:
