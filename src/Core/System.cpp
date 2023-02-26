@@ -2,9 +2,11 @@
 #include "Ty/Defer.h"
 #include "Ty/StringBuffer.h"
 #include <fcntl.h>
+#include <netdb.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/uio.h>
@@ -300,6 +302,125 @@ ErrorOr<void> sigaction(int sig, const struct sigaction *__restrict action, stru
     if (rv < 0)
         return Error::from_errno();
     return {};
+}
+
+ErrorOr<int> socket(int domain, int type, int protocol)
+{
+    auto rv = ::socket(domain, type, protocol);
+    if (rv < 0)
+        return Error::from_errno();
+    return rv;
+}
+
+ErrorOr<void> bind(int fd, struct sockaddr const* addr, socklen_t len)
+{
+    if (::bind(fd, addr, len) < 0)
+        return Error::from_errno();
+    return {};
+}
+
+ErrorOr<void> listen(int fd, int number_of_clients)
+{
+    if (::listen(fd, number_of_clients) < 0)
+        return Error::from_errno();
+    return {};
+}
+
+ErrorOr<void> connect(int fd, struct sockaddr const* addr, socklen_t len)
+{
+    if (::connect(fd, addr, len) < 0)
+        return Error::from_errno();
+    return {};
+}
+
+ErrorOr<ssize_t> recv(int fd, void* buf, size_t buf_size, int flags)
+{
+    auto rv = ::recv(fd, buf, buf_size, flags);
+    if (rv < 0)
+        return Error::from_errno();
+    return rv;
+}
+
+ErrorOr<ssize_t> send(int fd, void const* buf, size_t buf_size, int flags)
+{
+    auto rv = ::send(fd, buf, buf_size, flags);
+    if (rv < 0)
+        return Error::from_errno();
+    return rv;
+}
+
+ErrorOr<ssize_t> send(int fd, StringView view, int flags)
+{
+    return TRY(send(fd, view.data, view.size, flags));
+}
+
+ErrorOr<struct addrinfo*> getaddrinfo(u16 service, struct addrinfo hints)
+{
+    struct addrinfo* res;
+
+    auto service_buf = TRY(StringBuffer::create_fill(service, "\0"sv));
+    auto rv = getaddrinfo(nullptr, service_buf.data(), &hints, &res);
+    if (rv < 0)
+        return Error::from_errno();
+
+    return res;
+}
+
+ErrorOr<struct addrinfo*> getaddrinfo(StringView name, u16 service, struct addrinfo hints)
+{
+    struct addrinfo* res;
+
+    auto name_buf = TRY(StringBuffer::create_fill(name, "\0"sv));
+    auto service_buf = TRY(StringBuffer::create_fill(service, "\0"sv));
+
+    auto rv = getaddrinfo(name_buf.data(), service_buf.data(), &hints, &res);
+    if (rv < 0)
+        return Error::from_errno();
+
+    return res;
+}
+
+ErrorOr<struct addrinfo*> getaddrinfo(StringView name, StringView service, struct addrinfo hints)
+{
+    struct addrinfo* res;
+
+    auto name_buf = TRY(StringBuffer::create_fill(name, "\0"sv));
+    auto service_buf = TRY(StringBuffer::create_fill(service, "\0"sv));
+
+    auto rv = getaddrinfo(name_buf.data(), service_buf.data(), &hints, &res);
+    if (rv < 0)
+        return Error::from_errno();
+
+    return res;
+}
+
+ErrorOr<void> setsockopt(int fd, int level, int optname, int value)
+{
+    auto rv = ::setsockopt(fd, level, optname, &value, sizeof(value));
+    if (rv < 0)
+        return Error::from_errno();
+    return {};
+}
+
+static void* get_in_addr(struct sockaddr* sa)
+{
+    if (sa->sa_family == AF_INET)
+        return &((struct sockaddr_in*)sa)->sin_addr;
+    return &((struct sockaddr_in6*)sa)->sin6_addr;
+}
+
+ErrorOr<StringBuffer> inet_ntop(struct sockaddr_storage sa)
+{
+    char buf[INET6_ADDRSTRLEN + 1];
+    c_string res = ::inet_ntop(
+            sa.ss_family,
+            get_in_addr((struct sockaddr*)&sa),
+            buf,
+            sizeof(buf)
+        );
+    if (res == nullptr)
+        return Error::from_errno();
+    return StringBuffer::create_fill(StringView::from_c_string(buf));
 }
 
 }

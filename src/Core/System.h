@@ -3,8 +3,12 @@
 #include <Ty/ErrorOr.h>
 #include <Ty/IOVec.h>
 #include <Ty/StringBuffer.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <spawn.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/uio.h>
 #include <sys/wait.h>
 
 extern "C" {
@@ -279,5 +283,18 @@ ErrorOr<int> fork();
 ErrorOr<void> sigemptyset(sigset_t *set);
 
 ErrorOr<void> sigaction(int sig, const struct sigaction *__restrict action, struct sigaction *__restrict old_action);
+
+ErrorOr<int> socket(int domain, int type, int protocol);
+ErrorOr<void> bind(int fd, struct sockaddr const* addr, socklen_t len);
+ErrorOr<void> listen(int fd, int number_of_clients);
+ErrorOr<void> connect(int fd, struct sockaddr const* addr, socklen_t len);
+ErrorOr<ssize_t> recv(int fd, void* buf, size_t buf_size, int flags = 0);
+ErrorOr<ssize_t> send(int fd, void const* buf, size_t buf_size, int flags = 0);
+ErrorOr<ssize_t> send(int fd, StringView view, int flags = 0);
+ErrorOr<struct addrinfo*> getaddrinfo(u16 service, struct addrinfo hints);
+ErrorOr<struct addrinfo*> getaddrinfo(StringView name, u16 service, struct addrinfo hints);
+ErrorOr<struct addrinfo*> getaddrinfo(StringView name, StringView service, struct addrinfo hints);
+ErrorOr<void> setsockopt(int fd, int level, int optname, int value);
+ErrorOr<StringBuffer> inet_ntop(struct sockaddr_storage sa);
 
 }

@@ -1,4 +1,5 @@
 #include "TCPConnection.h"
+#include "Core/System.h"
 #include "Ty/StringBuffer.h"
 #include <Core/Print.h>
 #include <netdb.h>
@@ -30,25 +31,14 @@ void TCPConnection::destroy() const
 
 ErrorOr<TCPConnection> TCPConnection::connect(StringView host, u16 port)
 {
-    struct addrinfo hints = {
+    auto* res = TRY(Core::System::getaddrinfo(host, port, {
         .ai_flags = AI_PASSIVE,
         .ai_family = AF_INET,
         .ai_socktype = SOCK_STREAM,
-    };
+    }));
 
-    const auto host_buffer = TRY(StringBuffer::create_fill(host, "\0"sv));
-    auto port_buffer = TRY(StringBuffer::create_fill(port, "\0"sv));
-
-    struct addrinfo* res = nullptr;
-    if (getaddrinfo(host_buffer.data(), port_buffer.data(), &hints, &res) < 0)
-        return Error::from_errno();
-
-    int socket = ::socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-    if (socket < 0)
-        return Error::from_errno();
-
-    if (::connect(socket, res->ai_addr, res->ai_addrlen) < 0)
-        return Error::from_errno();
+    auto socket = TRY(Core::System::socket(res->ai_family, res->ai_socktype, res->ai_protocol));
+    TRY(Core::System::connect(socket, res->ai_addr, res->ai_addrlen));
 
     struct sockaddr_storage addr {};
     __builtin_memcpy(&addr, res->ai_addr, res->ai_addrlen);
@@ -63,9 +53,7 @@ ErrorOr<StringBuffer> TCPConnection::read() const
     while (true) {
         char buffer[1024];
         isize buffer_size = sizeof(buffer);
-        bytes_read = ::recv(socket, buffer, buffer_size - 1, 0);
-        if (bytes_read < 0)
-            return Error::from_errno();
+        bytes_read = TRY(Core::System::recv(socket, buffer, buffer_size));
         buffer[bytes_read] = '\0';
         TRY(result.write(StringView::from_c_string(buffer)));
         if (bytes_read == 0)
@@ -86,39 +74,20 @@ ErrorOr<u32> TCPConnection::write(StringView message)
 
 ErrorOr<void> TCPConnection::flush_write() const
 {
-    u32 total_bytes_written = 0;
+    u32 bytes_written = 0;
 
-    while (total_bytes_written < write_buffer.size()) {
-        auto view = write_buffer.view().shrink_from_start(total_bytes_written);
-        auto bytes_written = send(socket, view.data, view.size, MSG_NOSIGNAL);
-        if (bytes_written < 0)
-            return Error::from_errno();
-        total_bytes_written += bytes_written;
+    while (bytes_written < write_buffer.size()) {
+        auto view = write_buffer.view().shrink_from_start(bytes_written);
+        bytes_written += TRY(Core::System::send(socket, view, MSG_NOSIGNAL));
     }
     write_buffer.clear();
 
     return {};
 }
 
-static void* get_in_addr(struct sockaddr* sa)
-{
-    if (sa->sa_family == AF_INET)
-        return &((struct sockaddr_in*)sa)->sin_addr;
-    return &((struct sockaddr_in6*)sa)->sin6_addr;
-}
-
 ErrorOr<StringBuffer> TCPConnection::printable_address() const
 {
-    char buf[INET6_ADDRSTRLEN + 1];
-    c_string res = inet_ntop(
-            address.ss_family,
-            get_in_addr((struct sockaddr*)&address),
-            buf,
-            sizeof(buf)
-        );
-    if (res == nullptr)
-        return Error::from_errno();
-    return StringBuffer::create_fill(StringView::from_c_string(buf));
+    return TRY(Core::System::inet_ntop(address));
 }
 
 }
