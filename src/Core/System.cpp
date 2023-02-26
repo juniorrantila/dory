@@ -139,7 +139,6 @@ ErrorOr<int> open(c_string path, int flags, mode_t mode)
 
 ErrorOr<void> close(int fd)
 {
-    TRY(fsync(fd));
     auto rv = ::close(fd);
     if (rv < 0)
         return Error::from_errno();
