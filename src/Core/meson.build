@@ -2,6 +2,7 @@ core_lib = library('core', [
     'File.cpp',
     'MappedFile.cpp',
     'System.cpp',
+    'Json.cpp',
     ],
     dependencies: ty_dep)
 
