@@ -100,6 +100,14 @@ struct [[nodiscard]] ErrorOr {
         return release_value();
     }
 
+    template <typename F>
+    constexpr ErrorOr<T, E> then(F callback)
+    {
+        if (is_error())
+            return ErrorOr<T, E>(release_error());
+        return ErrorOr<T, E>(callback(release_value()));
+    }
+
     constexpr void ignore() const { }
 
 private:
