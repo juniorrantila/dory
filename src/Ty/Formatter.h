@@ -203,6 +203,10 @@ struct Formatter<f64> {
         size += TRY(to.write("."sv));
         auto fraction_part = (number - (f64)integer_part);
         auto fraction = (u128)(fraction_part * 1000000000000000.0);
+        if (fraction == 0) {
+            size += TRY(to.write("0"sv));
+            return size;
+        }
         while (fraction % 10 == 0)
             fraction /= 10;
         size += TRY(Formatter<u128>::write(to, fraction));
