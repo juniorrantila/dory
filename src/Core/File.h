@@ -80,7 +80,7 @@ struct File {
     }
 
     template <typename... Args>
-    constexpr ErrorOr<u32> writeln(Args... args)
+    constexpr ErrorOr<u32> writeln(Args const&... args)
     {
         return TRY(write(args..., "\n"sv));
     }
@@ -97,7 +97,8 @@ struct File {
     }
 
     template <typename T>
-    requires is_trivially_copyable<T> ErrorOr<u32> write(T value)
+    requires is_trivially_copyable<T> ErrorOr<u32> write(
+        T const& value)
     {
         return TRY(Formatter<T>::write(*this, value));
     }
