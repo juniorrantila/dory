@@ -6,6 +6,7 @@
 #include "Move.h"
 #include "ReverseIterator.h"
 #include "Try.h"
+#include "Verify.h"
 #include "View.h"
 
 #ifndef ALWAYS_INLINE
@@ -116,48 +117,67 @@ struct Vector {
         return {};
     }
 
-    FLATTEN constexpr View<T> view() { return { m_data, m_size }; }
+    FLATTEN constexpr View<T> view() { return { data(), size() }; }
     FLATTEN constexpr View<T const> view() const
     {
-        return { m_data, m_size };
+        return { data(), size() };
     }
 
     FLATTEN constexpr T const& at(u32 index) const
     {
+        VERIFY(index < size());
         return data()[index];
     }
 
     FLATTEN constexpr T const& at(Id<T> id) const
     {
+        VERIFY(id.raw() < size());
         return at(id.raw());
     }
 
     FLATTEN constexpr T const& operator[](u32 index) const
     {
+        VERIFY(index < size());
         return at(index);
     }
 
     FLATTEN constexpr T const& operator[](Id<T> id) const
     {
+        VERIFY(id.raw() < size());
         return at(id);
     }
 
     FLATTEN constexpr T& operator[](u32 index)
     {
+        VERIFY(index < size());
         return data()[index];
     }
 
     FLATTEN constexpr T& operator[](Id<T> id)
     {
+        VERIFY(id.raw() < size());
         return data()[id.raw()];
     }
 
-    FLATTEN constexpr T* begin() { return data(); }
-    FLATTEN constexpr T* end() { return &data()[m_size]; }
+    FLATTEN constexpr T* begin()
+    {
+        VERIFY(data() != nullptr);
+        return data();
+    }
+    FLATTEN constexpr T* end()
+    {
+        VERIFY(data() != nullptr);
+        return &data()[m_size];
+    }
 
-    FLATTEN constexpr T const* begin() const { return data(); }
+    FLATTEN constexpr T const* begin() const
+    {
+        VERIFY(data() != nullptr);
+        return data();
+    }
     FLATTEN constexpr T const* end() const
     {
+        VERIFY(data() != nullptr);
         return &data()[m_size];
     }
 
@@ -185,7 +205,7 @@ struct Vector {
 
     constexpr bool is_empty() const { return m_size == 0; }
 
-    constexpr bool is_valid() const { return m_size != 0xFFFFFF; }
+    constexpr bool is_valid() const { return m_size != 0xFFFFFFFF; }
 
 private:
     constexpr static auto inline_capacity = 8;
@@ -237,7 +257,10 @@ private:
     {
     }
 
-    ALWAYS_INLINE constexpr void invalidate() { m_size = 0xFFFFFF; }
+    ALWAYS_INLINE constexpr void invalidate()
+    {
+        m_size = 0xFFFFFFFF;
+    }
 
     FLATTEN constexpr T* current_slot() { return &data()[m_size]; }
 
@@ -278,4 +301,4 @@ private:
 
 }
 
-using namespace Ty;
+using Ty::Vector; // NOLINT
