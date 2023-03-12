@@ -1,7 +1,9 @@
-#include "Move.h"
-#include "Vector.h"
+#pragma once
 #include "ErrorOr.h"
+#include "Move.h"
 #include "Try.h"
+#include "Vector.h"
+#include "Verify.h"
 
 namespace Ty {
 
@@ -64,13 +66,28 @@ struct LinearMap {
         return {};
     }
 
+    template <typename F>
+    constexpr decltype(auto) find(Key const& key,
+        F error_callback) const
+    {
+        using Return
+            = ErrorOr<Id<Value>, decltype(error_callback())>;
+        for (u32 i = 0; i < m_keys.size(); i++) {
+            if (m_keys[i] == key)
+                return Return(Id<Value>(i));
+        }
+        return Return(error_callback());
+    }
+
     constexpr Value const& operator[](Id<Value> id) const
     {
+        VERIFY(id.raw() < m_values.size());
         return m_values[id];
     }
 
     constexpr Value& operator[](Id<Value> id)
     {
+        VERIFY(id.raw() < m_values.size());
         return m_values[id];
     }
 
