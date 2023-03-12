@@ -236,6 +236,18 @@ struct Formatter<char> {
 };
 
 template <>
+struct Formatter<bool> {
+    template <typename U>
+    requires Writable<U>
+    static constexpr ErrorOr<u32> write(U& to, bool value)
+    {
+        if (value)
+            return TRY(to.write("true"sv));
+        return TRY(to.write("false"sv));
+    }
+};
+
+template <>
 struct Formatter<Error> {
     template <typename U>
     requires Writable<U>
