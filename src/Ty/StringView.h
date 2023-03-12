@@ -50,6 +50,15 @@ struct StringView {
         return data[index];
     }
 
+    constexpr bool contains(char character) const
+    {
+        for (u32 i = 0; i < size; i++) {
+            if (data[i] == character)
+                return true;
+        }
+        return false;
+    }
+
     [[gnu::flatten]] constexpr u32 unchecked_copy_to(char* other,
         u32 size) const
     {
