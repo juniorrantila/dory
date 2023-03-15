@@ -66,7 +66,16 @@ struct [[nodiscard]] ErrorOr {
         }
     }
 
-    constexpr ErrorOr& operator=(ErrorOr&& other) = default;
+    constexpr ErrorOr& operator=(ErrorOr&& other)
+    {
+        m_state = other.m_state;
+        if (m_state == State::Value)
+            m_value = move(other.m_value);
+        if (m_state == State::Error)
+            m_error = move(other.m_error);
+        other.m_state = State::Moved;
+        return *this;
+    }
 
     constexpr bool has_value() const
     {
@@ -143,6 +152,11 @@ struct [[nodiscard]] ErrorOr<void, E> {
         !is_same<E, Error> && is_constructible<E, EE>)
         : m_error(EE(error))
     {
+    }
+
+    constexpr ErrorOr& operator=(ErrorOr&& other)
+    {
+        m_error = move(other.m_error);
     }
 
     constexpr bool has_value() const { return !is_error(); }
