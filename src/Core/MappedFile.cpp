@@ -1,6 +1,6 @@
 #include "MappedFile.h"
-#include "System.h"
 #include <Ty/Defer.h>
+#include <Ty/System.h>
 
 namespace Core {
 
@@ -18,7 +18,7 @@ ErrorOr<MappedFile> MappedFile::open(c_string path)
         if (should_close_file)
             System::close(fd).ignore();
     };
-    auto file_stat = TRY(Core::System::fstat(fd));
+    auto file_stat = TRY(System::fstat(fd));
     if (!file_stat.is_regular())
         return Error::from_string_literal(
             "file is not a regular file");

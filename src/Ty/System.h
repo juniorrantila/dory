@@ -1,8 +1,7 @@
 #pragma once
-#include "MappedFile.h"
-#include <Ty/ErrorOr.h>
-#include <Ty/IOVec.h>
-#include <Ty/StringBuffer.h>
+#include "ErrorOr.h"
+#include "IOVec.h"
+#include "StringBuffer.h"
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <spawn.h>
@@ -30,7 +29,7 @@ using off_t = long;
 #    define STDERR_FILENO 2
 #endif
 
-namespace Core::System {
+namespace Ty::System {
 
 #ifdef __linux__
 
@@ -207,7 +206,6 @@ namespace Core::System {
 #    warning "unimplemented"
 #endif
 
-ErrorOr<usize> write(int fd, MappedFile const& file);
 ErrorOr<usize> write(int fd, StringBuffer const& string);
 ErrorOr<usize> write(int fd, StringView string);
 ErrorOr<usize> write(int fd, void const* data, usize size);
@@ -280,21 +278,32 @@ void sleep(u32 seconds);
 
 ErrorOr<int> fork();
 
-ErrorOr<void> sigemptyset(sigset_t *set);
+ErrorOr<void> sigemptyset(sigset_t* set);
 
-ErrorOr<void> sigaction(int sig, const struct sigaction *__restrict action, struct sigaction *__restrict old_action);
+ErrorOr<void> sigaction(int sig,
+    const struct sigaction* __restrict action,
+    struct sigaction* __restrict old_action);
 
 ErrorOr<int> socket(int domain, int type, int protocol);
-ErrorOr<void> bind(int fd, struct sockaddr const* addr, socklen_t len);
+ErrorOr<void> bind(int fd, struct sockaddr const* addr,
+    socklen_t len);
 ErrorOr<void> listen(int fd, int number_of_clients);
-ErrorOr<void> connect(int fd, struct sockaddr const* addr, socklen_t len);
-ErrorOr<ssize_t> recv(int fd, void* buf, size_t buf_size, int flags = 0);
-ErrorOr<ssize_t> send(int fd, void const* buf, size_t buf_size, int flags = 0);
+ErrorOr<void> connect(int fd, struct sockaddr const* addr,
+    socklen_t len);
+ErrorOr<ssize_t> recv(int fd, void* buf, size_t buf_size,
+    int flags = 0);
+ErrorOr<ssize_t> send(int fd, void const* buf, size_t buf_size,
+    int flags = 0);
 ErrorOr<ssize_t> send(int fd, StringView view, int flags = 0);
-ErrorOr<struct addrinfo*> getaddrinfo(u16 service, struct addrinfo hints);
-ErrorOr<struct addrinfo*> getaddrinfo(StringView name, u16 service, struct addrinfo hints);
-ErrorOr<struct addrinfo*> getaddrinfo(StringView name, StringView service, struct addrinfo hints);
+ErrorOr<struct addrinfo*> getaddrinfo(u16 service,
+    struct addrinfo hints);
+ErrorOr<struct addrinfo*> getaddrinfo(StringView name, u16 service,
+    struct addrinfo hints);
+ErrorOr<struct addrinfo*> getaddrinfo(StringView name,
+    StringView service, struct addrinfo hints);
 ErrorOr<void> setsockopt(int fd, int level, int optname, int value);
 ErrorOr<StringBuffer> inet_ntop(struct sockaddr_storage sa);
 
 }
+
+using namespace Ty;

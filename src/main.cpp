@@ -1,7 +1,7 @@
+#include <Ty/System.h>
 #include <CLI/ArgumentParser.h>
 #include <Core/MappedFile.h>
 #include <Core/Print.h>
-#include <Core/System.h>
 #include <HTTP/Headers.h>
 #include <HTTP/Response.h>
 #include <Main/Main.h>
@@ -45,13 +45,16 @@ ErrorOr<int> Main::main(int argc, c_string argv[])
         "Port to use (default: 8080)"sv, [&](auto argument) {
             auto port = StringView::from_c_string(argument);
             port_or_error = Parse<u16>::from(port).or_throw(
-                Error::from_string_literal("invalid port number", "argument_parser"));
+                Error::from_string_literal("invalid port number",
+                    "argument_parser"));
         }));
 
     auto static_folder_path = StringView();
-    TRY(argument_parser.add_positional_argument("static-folder"sv, [&](auto argument){
-        static_folder_path = StringView::from_c_string(argument);
-    }));
+    TRY(argument_parser.add_positional_argument("static-folder"sv,
+        [&](auto argument) {
+            static_folder_path
+                = StringView::from_c_string(argument);
+        }));
 
     if (auto result = argument_parser.run(argc, argv);
         result.is_error()) {

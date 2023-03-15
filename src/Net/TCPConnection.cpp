@@ -1,20 +1,18 @@
 #include "TCPConnection.h"
-#include "Core/System.h"
-#include "Ty/StringBuffer.h"
 #include <Core/Print.h>
+#include <Ty/StringBuffer.h>
+#include <Ty/System.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <arpa/inet.h>
 
 namespace Net {
 
-ErrorOr<TCPConnection> TCPConnection::create(
-    int socket,
-    struct sockaddr_storage address,
-    socklen_t address_size
-) {
+ErrorOr<TCPConnection> TCPConnection::create(int socket,
+    struct sockaddr_storage address, socklen_t address_size)
+{
     return TCPConnection {
         address,
         address_size,
@@ -29,18 +27,21 @@ void TCPConnection::destroy() const
     ::close(socket);
 }
 
-ErrorOr<TCPConnection> TCPConnection::connect(StringView host, u16 port)
+ErrorOr<TCPConnection> TCPConnection::connect(StringView host,
+    u16 port)
 {
-    auto* res = TRY(Core::System::getaddrinfo(host, port, {
-        .ai_flags = AI_PASSIVE,
-        .ai_family = AF_INET,
-        .ai_socktype = SOCK_STREAM,
-    }));
+    auto* res = TRY(System::getaddrinfo(host, port,
+        {
+            .ai_flags = AI_PASSIVE,
+            .ai_family = AF_INET,
+            .ai_socktype = SOCK_STREAM,
+        }));
 
-    auto socket = TRY(Core::System::socket(res->ai_family, res->ai_socktype, res->ai_protocol));
-    TRY(Core::System::connect(socket, res->ai_addr, res->ai_addrlen));
+    auto socket = TRY(System::socket(res->ai_family,
+        res->ai_socktype, res->ai_protocol));
+    TRY(System::connect(socket, res->ai_addr, res->ai_addrlen));
 
-    struct sockaddr_storage addr {};
+    struct sockaddr_storage addr { };
     __builtin_memcpy(&addr, res->ai_addr, res->ai_addrlen);
     return TRY(create(socket, addr, res->ai_addrlen));
 }
@@ -53,7 +54,7 @@ ErrorOr<StringBuffer> TCPConnection::read() const
     while (true) {
         char buffer[1024];
         isize buffer_size = sizeof(buffer);
-        bytes_read = TRY(Core::System::recv(socket, buffer, buffer_size));
+        bytes_read = TRY(System::recv(socket, buffer, buffer_size));
         buffer[bytes_read] = '\0';
         TRY(result.write(StringView::from_c_string(buffer)));
         if (bytes_read == 0)
@@ -77,8 +78,10 @@ ErrorOr<void> TCPConnection::flush_write() const
     u32 bytes_written = 0;
 
     while (bytes_written < write_buffer.size()) {
-        auto view = write_buffer.view().shrink_from_start(bytes_written);
-        bytes_written += TRY(Core::System::send(socket, view, MSG_NOSIGNAL));
+        auto view
+            = write_buffer.view().shrink_from_start(bytes_written);
+        bytes_written
+            += TRY(System::send(socket, view, MSG_NOSIGNAL));
     }
     write_buffer.clear();
 
@@ -87,7 +90,7 @@ ErrorOr<void> TCPConnection::flush_write() const
 
 ErrorOr<StringBuffer> TCPConnection::printable_address() const
 {
-    return TRY(Core::System::inet_ntop(address));
+    return TRY(System::inet_ntop(address));
 }
 
 }

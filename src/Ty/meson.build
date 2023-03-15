@@ -4,6 +4,7 @@ ty_lib = library('ty', [
     'Memory.cpp',
     'StringView.cpp',
     'Parse.cpp',
+    'System.cpp',
   ])
 
 ty_dep = declare_dependency(

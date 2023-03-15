@@ -1,16 +1,18 @@
 #include "Main.h"
 #include <Core/File.h>
 #include <Core/Print.h>
-#include <Core/System.h>
+#include <Ty/System.h>
 
 int main(int argc, c_string argv[])
 {
-    while(true) {
+    while (true) {
         auto result = Main::main(argc, argv);
         if (result.is_error()) {
-            Core::File::stderr().writeln("Error: "sv, result.error()).ignore();
+            Core::File::stderr()
+                .writeln("Error: "sv, result.error())
+                .ignore();
             dbgln("Restarting in 10 seconds\n"sv);
-            Core::System::sleep(10);
+            System::sleep(10);
             dbgln("Restarting"sv);
             continue;
         }

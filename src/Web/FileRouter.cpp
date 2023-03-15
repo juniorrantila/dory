@@ -1,9 +1,9 @@
 #include "FileRouter.h"
 #include "Ty/StringBuffer.h"
 #include <Core/MappedFile.h>
+#include <Ty/System.h>
 #include <sys/inotify.h>
 #include <unistd.h>
-#include <Core/System.h>
 
 namespace Web {
 
@@ -24,16 +24,19 @@ ErrorOr<FileRouter> FileRouter::create()
 
 void FileRouter::destroy() const
 {
-    Core::System::close(m_filewatch_fd).ignore();
+    System::close(m_filewatch_fd).ignore();
 }
 
-ErrorOr<void> FileRouter::add_route(StringView route, StringView filename)
+ErrorOr<void> FileRouter::add_route(StringView route,
+    StringView filename)
 {
     TRY(m_static_routes.append(route, filename));
     TRY(m_files.append(filename, TRY(File::open(filename))));
 
-    auto name_buf = TRY(StringBuffer::create_fill(filename, "\0"sv));
-    auto watch_file = inotify_add_watch(m_filewatch_fd, name_buf.data(), IN_MODIFY);
+    auto name_buf
+        = TRY(StringBuffer::create_fill(filename, "\0"sv));
+    auto watch_file = inotify_add_watch(m_filewatch_fd,
+        name_buf.data(), IN_MODIFY);
     if (watch_file < 0) {
         return Error::from_errno();
     }
@@ -54,7 +57,8 @@ ErrorOr<void> FileRouter::reload_files_if_needed(Core::File& log)
         }
         auto path_id = m_watch_file_map.find(event.wd);
         if (!path_id.has_value()) {
-            return Error::from_string_literal("could not find name of watched file");
+            return Error::from_string_literal(
+                "could not find name of watched file");
         }
         auto path = m_watch_file_map[path_id.value()];
         log.writeln("reloading \""sv, path, "\""sv).ignore();

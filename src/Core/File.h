@@ -1,9 +1,9 @@
 #pragma once
-#include "System.h"
-#include "Ty/Traits.h"
 #include <Ty/ErrorOr.h>
 #include <Ty/Forward.h>
 #include <Ty/IOVec.h>
+#include <Ty/System.h>
+#include <Ty/Traits.h>
 
 namespace Core {
 
@@ -112,13 +112,13 @@ struct File {
 
     ErrorOr<void> flush()
     {
-        TRY(Core::System::write(m_fd, buffer.view()));
+        TRY(System::write(m_fd, buffer.view()));
         buffer.clear();
 
         return {};
     }
 
-    bool is_tty() const { return Core::System::isatty(m_fd); }
+    bool is_tty() const { return System::isatty(m_fd); }
 
 private:
     constexpr File() = default;
@@ -126,7 +126,7 @@ private:
     constexpr ErrorOr<usize> buffer_or_write(StringView string)
     {
         if (buffer.capacity() <= string.size)
-            return TRY(Core::System::write(m_fd, string));
+            return TRY(System::write(m_fd, string));
         if (buffer.size_left() <= string.size)
             TRY(flush());
         return TRY(buffer.write(string));
