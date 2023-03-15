@@ -3,6 +3,7 @@
 #include "Concepts.h"
 #include "ErrorOr.h"
 #include "FormatCounter.h"
+#include "Formatter.h"
 #include "Forward.h"
 #include "Memory.h"
 #include "Traits.h"
