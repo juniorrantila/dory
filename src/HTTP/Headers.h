@@ -1,7 +1,7 @@
 #pragma once
+#include <Ty/Concepts.h>
 #include <Ty/ErrorOr.h>
 #include <Ty/Optional.h>
-#include <Ty/Concepts.h>
 
 namespace HTTP {
 
@@ -14,9 +14,20 @@ struct Get {
     }
 };
 
+struct Post {
+    StringView slug;
+
+    constexpr Post(StringView slug)
+        : slug(slug)
+    {
+    }
+};
+
 struct Headers {
     static ErrorOr<Headers> create_from(StringView source);
     ErrorOr<Optional<Get>> get() const;
+    ErrorOr<Optional<Post>> post() const;
+    ErrorOr<Optional<StringView>> body() const;
 
 private:
     constexpr Headers(StringView source)
