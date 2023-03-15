@@ -121,7 +121,9 @@ struct StringView {
     }
 
     ErrorOr<Vector<StringView>> split_on(char character) const;
+    ErrorOr<Vector<StringView>> split_on(StringView sequence) const;
     ErrorOr<Vector<u32>> find_all(char character) const;
+    ErrorOr<Vector<u32>> find_all(StringView sequence) const;
     Optional<u32> find_first(char character) const
     {
         for (u32 i = 0; i < size; i++) {
