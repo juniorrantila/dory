@@ -238,8 +238,9 @@ constexpr ErrorOr<SingleValue> parse_number(StringView source,
 {
     ASSERT(token.type == Token::Number);
     auto view = source.sub_view(token.start, token.size);
-    auto value = TRY(Parse<f64>::from(view).or_throw(
-        Error::from_string_literal("invalid number")));
+    auto value = TRY(Parse<f64>::from(view).or_throw([] {
+        return Error::from_string_literal("invalid number");
+    }));
     return SingleValue {
         JsonValue(value),
         1,
