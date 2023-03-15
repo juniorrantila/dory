@@ -101,11 +101,12 @@ struct [[nodiscard]] ErrorOr {
     }
 
     template <typename F>
-    constexpr ErrorOr<T, E> then(F callback)
+    constexpr decltype(auto) then(F callback)
     {
+        using Return = decltype(callback(release_value()));
         if (is_error())
-            return ErrorOr<T, E>(release_error());
-        return ErrorOr<T, E>(callback(release_value()));
+            return Return(release_error());
+        return Return(callback(release_value()));
     }
 
     constexpr void ignore() const { }
