@@ -24,6 +24,12 @@ struct StringView {
     {
     }
 
+    consteval StringView(c_string data)
+        : data(data)
+        , size(__builtin_strlen(data))
+    {
+    }
+
     [[gnu::flatten]] constexpr bool operator==(
         StringView other) const
     {
