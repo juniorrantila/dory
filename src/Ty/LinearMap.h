@@ -79,6 +79,31 @@ struct LinearMap {
         return Return(error_callback());
     }
 
+    template <typename F>
+    constexpr decltype(auto) fetch(Key const& key,
+        F error_callback) const
+    {
+        using Return = ErrorOr<Value, decltype(error_callback())>;
+        for (u32 i = 0; i < m_keys.size(); i++) {
+            if (m_keys[i] == key)
+                return Return(operator[](Id<Value>(i)));
+        }
+        return Return(error_callback());
+    }
+
+    constexpr ErrorOr<Value> fetch(Key const& key,
+        c_string function = __builtin_FUNCTION(),
+        c_string file = __builtin_FILE(),
+        u32 line = __builtin_LINE()) const
+    {
+        for (u32 i = 0; i < m_keys.size(); i++) {
+            if (m_keys[i] == key)
+                return operator[](Id<Value>(i));
+        }
+        return Error::from_string_literal("value not in map",
+            function, file, line);
+    }
+
     constexpr Value const& operator[](Id<Value> id) const
     {
         VERIFY(id.raw() < m_values.size());
@@ -104,4 +129,4 @@ private:
 
 }
 
-using Ty::LinearMap;
+using Ty::LinearMap; // NOLINT
