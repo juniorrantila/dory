@@ -119,14 +119,45 @@ private:
 struct Json {
     static ErrorOr<Json> create_from(StringView);
 
-    constexpr JsonObject const& operator[](Id<JsonObject> id) const
+    constexpr JsonObject const& at(Id<JsonObject> id) const
     {
         return m_objects[id];
     }
 
-    constexpr JsonArray const& operator[](Id<JsonArray> id) const
+    constexpr JsonArray const& at(Id<JsonArray> id) const
     {
         return m_arrays[id];
+    }
+
+    constexpr JsonObject const& operator[](Id<JsonObject> id) const { return at(id); }
+    constexpr JsonArray const& operator[](Id<JsonArray> id) const { return at(id); }
+
+    JsonValue::Type type() const { return m_root.type(); }
+    JsonValue root() const { return m_root; }
+
+    constexpr ErrorOr<bool> as_bool() const
+    {
+        return TRY(root().as_bool());
+    }
+
+    constexpr ErrorOr<double> as_number() const
+    {
+        return TRY(root().as_number());
+    }
+
+    constexpr ErrorOr<JsonObject const&> as_object() const
+    {
+        return &at(TRY(root().as_object()));
+    }
+
+    constexpr ErrorOr<JsonArray const&> as_array() const
+    {
+        return &at(TRY(root().as_array()));
+    }
+
+    constexpr ErrorOr<StringView> as_string() const
+    {
+        return TRY(root().as_string());
     }
 
 private:
