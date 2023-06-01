@@ -13,6 +13,10 @@
 #include <sys/uio.h>
 #include <unistd.h>
 
+#if __APPLE__
+#include <signal.h>
+#endif
+
 namespace Ty::System {
 
 ErrorOr<void> fsync(int fd)
@@ -190,7 +194,6 @@ ErrorOr<Status> waitpid(pid_t pid, int options)
 #ifdef __linux__
 #    define TIOCGETD 0x5424
 #elif __APPLE__
-#    define TIOCGETD 0x40047426
 #else
 #    warning "unimplemented"
 #endif
@@ -281,6 +284,19 @@ ErrorOr<int> fork()
     return pid;
 }
 
+#if __APPLE__
+
+#pragma push_macro("sigemptyset")
+#undef sigemptyset
+ErrorOr<void> sigemptyset(sigset_t* set)
+{
+    *set = { 0 };
+    return {};
+}
+#pragma pop_macro("sigemptyset")
+
+#else
+
 ErrorOr<void> sigemptyset(sigset_t* set)
 {
     auto rv = ::sigemptyset(set);
@@ -288,6 +304,8 @@ ErrorOr<void> sigemptyset(sigset_t* set)
         return Error::from_errno();
     return {};
 }
+
+#endif
 
 ErrorOr<void> sigaction(int sig,
     const struct sigaction* __restrict action,
