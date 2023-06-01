@@ -37,7 +37,7 @@ ErrorOr<Vector<StringView>> StringView::split_on(
 {
     auto indexes = TRY(find_all(character));
     if (indexes.is_empty())
-        return {};
+        return Vector<StringView>();
 
     auto splits = TRY(Vector<StringView>::create());
 
@@ -56,7 +56,7 @@ ErrorOr<Vector<StringView>> StringView::split_on(
 {
     auto indexes = TRY(find_all(sequence));
     if (indexes.is_empty())
-        return {};
+        return Vector<StringView>();
 
     auto splits = TRY(Vector<StringView>::create());
 
