@@ -4,6 +4,7 @@
 #include "Move.h"
 #include "New.h"
 #include "Traits.h"
+#include "Try.h"
 
 namespace Ty {
 
@@ -117,6 +118,8 @@ struct [[nodiscard]] Optional {
 
     explicit constexpr operator bool() { return has_value(); }
 
+    constexpr T must() { return MUST(*this); }
+
 private:
     constexpr void clear_if_needed()
     {
@@ -197,6 +200,8 @@ struct [[nodiscard]] Optional<T*> {
         using Return = decltype(callback());
         return Return(release_value());
     }
+
+    constexpr T must() { return MUST(*this); }
 
 private:
     T* m_value { nullptr };

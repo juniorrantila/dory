@@ -119,6 +119,7 @@ struct [[nodiscard]] ErrorOr {
     }
 
     constexpr void ignore() const { }
+    constexpr T must() { return MUST(*this); }
 
 private:
     union {
@@ -177,6 +178,7 @@ struct [[nodiscard]] ErrorOr<void, E> {
     }
 
     constexpr void ignore() const { }
+    constexpr void must() { return MUST(*this); }
 
 private:
     Optional<E> m_error {};
