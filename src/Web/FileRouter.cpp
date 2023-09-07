@@ -2,23 +2,31 @@
 #include "Ty/StringBuffer.h"
 #include <Core/MappedFile.h>
 #include <Ty/System.h>
+#if __linux__
 #include <sys/inotify.h>
+#endif
 #include <unistd.h>
 
 namespace Web {
 
 ErrorOr<FileRouter> FileRouter::create()
 {
+#if __linux__
     auto filewatch_fd = inotify_init1(IN_NONBLOCK);
     if (filewatch_fd < 0) {
         return Error::from_errno();
     }
+#endif
 
     return FileRouter {
         TRY(StaticRoutes::create()),
         TRY(Files::create()),
         TRY(WatchFileMap::create()),
+#if __linux__
         filewatch_fd,
+#else
+        -1
+#endif
     };
 }
 
@@ -35,17 +43,20 @@ ErrorOr<void> FileRouter::add_route(StringView route,
 
     auto name_buf
         = TRY(StringBuffer::create_fill(filename, "\0"sv));
+#if __linux__
     auto watch_file = inotify_add_watch(m_filewatch_fd,
         name_buf.data(), IN_MODIFY);
     if (watch_file < 0) {
         return Error::from_errno();
     }
     TRY(m_watch_file_map.append(watch_file, filename));
+#endif
     return {};
 }
 
 ErrorOr<void> FileRouter::reload_files_if_needed(Core::File& log)
 {
+#if __linux__
     struct inotify_event event;
     while (true) {
         auto rv = ::read(m_filewatch_fd, &event, sizeof(event));
@@ -64,6 +75,8 @@ ErrorOr<void> FileRouter::reload_files_if_needed(Core::File& log)
         log.writeln("reloading \""sv, path, "\""sv).ignore();
         TRY(reload_file(path));
     }
+#endif
+    return {};
 }
 
 ErrorOr<void> FileRouter::reload_file(StringView path)
