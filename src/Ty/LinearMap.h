@@ -80,7 +80,7 @@ struct LinearMap {
     }
 
     template <typename F>
-    constexpr decltype(auto) fetch(Key const& key,
+    constexpr auto fetch(Key const& key,
         F error_callback) const
     {
         using Return = ErrorOr<Value, decltype(error_callback())>;
